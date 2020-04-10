@@ -1,7 +1,7 @@
 document.title = "Vue.JS Weather App";
 
 var titleCard = document.createElement("DIV");
-titleCard.className = "stuff-box black";
+titleCard.className = "stuff-box gray";
 titleCard.id = "title_card";
 document.body.appendChild(titleCard);
 
@@ -13,7 +13,7 @@ var locDiv = document.createElement("DIV");
 locDiv.id = "location";
 document.body.appendChild(locDiv);
 
-var locTitle = document.createElement("H4");
+var locTitle = document.createElement("H3");
 locTitle.innerHTML = "Your location";
 locDiv.appendChild(locTitle);
 
@@ -26,7 +26,7 @@ var currDiv = document.createElement("DIV");
 currDiv.id = "current_conditions";
 document.body.appendChild(currDiv);
 
-var currTitle = document.createElement("H4");
+var currTitle = document.createElement("H3");
 currTitle.innerHTML = "Current Conditions";
 currDiv.appendChild(currTitle);
 
@@ -42,7 +42,7 @@ var forecastDiv = document.createElement("DIV");
 forecastDiv.id = "forecast"
 document.body.appendChild(forecastDiv);
 
-var forecastTitle = document.createElement("H4");
+var forecastTitle = document.createElement("H3");
 forecastTitle.innerHTML = "5 day 3-hour forecast";
 forecastDiv.appendChild(forecastTitle);
 
@@ -106,7 +106,7 @@ fetch(locURL)
                 textMess = "Low " + data.main.temp_min + "F";
                 addLI(textMess, conList);
 
-                textMess = data.main.pressure + "hPa pressure";
+                textMess = data.main.pressure + " hPa pressure";
                 addLI(textMess, conList);
 
                 textMess = data.main.humidity + "% humidity";
@@ -125,6 +125,56 @@ fetch(locURL)
             fetch(forecastURL)
             .then((response) => {return response.json();})
             .then((data) => {
+                var hourlyList = data.list;
+
+                for(i=0; i<hourlyList.length; i++){
+                    var hourly = hourlyList[i];
+                    console.log(hourly);
+
+                    var hourlyDiv = document.createElement("DIV");
+                    hourlyDiv.id = "hourly_" + i;
+                    forecastDiv.appendChild(hourlyDiv);
+
+                    var date = new Date(hourly.dt * 1000);
+
+                    var month = date.getMonth() + 1;
+                    var day = date.getDate();
+                    var year = date.getFullYear();
+
+                    var dateFormat = month + "/" + day + "/" + year;
+
+                    var hour = date.getHours();
+
+                    if(hour < 10){
+                        hour = "0" + hour;
+                    }
+                    var minute = date.getMinutes();
+
+                    if(minute < 10){
+                        minute = "0" + minute;
+                    }
+                    var second = date.getSeconds();
+
+                    if(second < 10){
+                        second = "0" + second;
+                    }
+                    var timeFormat = hour + ":" + minute + ":" + second;
+
+                    var hourlyTitle = document.createElement("H4");
+                    hourlyTitle.innerHTML = "Conditions for " + dateFormat + ", " + timeFormat;
+                    hourlyDiv.appendChild(hourlyTitle);
+
+                    var conList = document.createElement("UL");
+                    conList.className = "conditions_list";
+                    hourlyDiv.appendChild(conList);
+
+                    addLI("Temperature " + hourly.main.temp + "F", conList);
+                    addLI("High " + hourly.main.temp_max + "F", conList);
+                    addLI("Low " + hourly.main.temp_min + "F", conList);
+                    addLI(hourly.main.pressure + "hPa pressure", conList);
+                    addLI(hourly.main.humidity + "% humidity", conList);
+                    addLI(hourly.weather[0].description, conList);
+                }
             })
             .catch(function(err) {
                 console.log("Something went wrong here...", err);
