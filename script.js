@@ -35,17 +35,19 @@ currMessage.innerHTML = "Current weather conditions @ " + getDateTime();
 currDiv.appendChild(currMessage);
 
 var currList = document.createElement("UL");
-currList.id = "conditions_list";
+currList.className = "conditions_list";
 currDiv.appendChild(currList);
 
 var forecastDiv = document.createElement("DIV");
-document.body.appendChild(currDiv);
+forecastDiv.id = "forecast"
+document.body.appendChild(forecastDiv);
 
-var forecastTitle = document.createElement("H5");
+var forecastTitle = document.createElement("H4");
 forecastTitle.innerHTML = "5 day 3-hour forecast";
 forecastDiv.appendChild(forecastTitle);
 
 var forecastMessage = document.createElement("P");
+forecastTitle.id = "likelihood_message";
 forecastDiv.appendChild(forecastMessage);
 
 var forecastUnLike = document.createElement("SPAN");
@@ -57,9 +59,80 @@ forecastMessage.appendChild(forecastNue);
 var forecastLike = document.createElement("SPAN");
 forecastMessage.appendChild(forecastLike);
 
-const locURL = 'https://api.ipstack.com/check?d819a0b842f699a515686f8c5a9757c8'
+const locURL = 'http://api.ipstack.com/check?access_key=d819a0b842f699a515686f8c5a9757c8&fields=main'
 
-fetch()
+fetch(locURL)
+    .then((response) => {return response.json();})
+    .then((data) => {
+        var locMess = document.getElementById("location_message").innerHTML;
+        locMess = "You are located at ";
+
+        if ("city" in data){
+            if (data.city != "NA"){
+                locMess += data.city;
+            }
+        }
+        if ("region_name" in data){
+            if (data.region_name != "NA"){
+                locMess += ", " + data.region_name;
+            }
+        }
+        if ("country_name" in data){
+            if (data.country_name != "NA"){
+                locMess += ", " + data.country_name;
+            }
+        }
+        var lat = data.latitude;
+        var long = data.longitude
+
+        locMess += " at coordinates (" + lat + ", " + long + ")"
+
+        document.getElementById("location_message").innerHTML = locMess;
+
+        var forecastURL = "https://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + long +
+        "&units=imperial&appid=2f82263a2db94f47be29da3e930d958b";
+
+        fetch(forecastURL)
+            .then((response) => {return response.json();})
+            .then((data) => {
+                var conList = document.getElementById("current_conditions").querySelectorAll(".conditions_list")[0];
+
+                var textMess = "Currently " + data.main.temp + "F";
+                addLI(textMess, conList);
+
+                textMess = "High " + data.main.temp_max + "F";
+                addLI(textMess, conList);
+
+                textMess = "Low " + data.main.temp_min + "F";
+                addLI(textMess, conList);
+
+                textMess = data.main.pressure + "hPa pressure";
+                addLI(textMess, conList);
+
+                textMess = data.main.humidity + "% humidity";
+                addLI(textMess, conList);
+
+                textMess = data.weather[0].description;
+                addLI(textMess, conList);
+            })
+            .catch(function(err) {
+                console.log("Something went wrong here...", err);
+            })
+
+            forecastURL = "https://api.openweathermap.org/data/2.5/forecast?lat=" + lat + "&lon=" + long +
+            "&units=imperial&appid=2f82263a2db94f47be29da3e930d958b";
+
+            fetch(forecastURL)
+            .then((response) => {return response.json();})
+            .then((data) => {
+            })
+            .catch(function(err) {
+                console.log("Something went wrong here...", err);
+            })
+    })
+    .catch(function(err) {
+        console.log("Something went wrong here...", err);
+    })
 
 function getDateTime(){
     var today = new Date();
@@ -68,16 +141,8 @@ function getDateTime(){
 
     return date + " " + time;
 }
-
-function addOutput(color, num, operator, num1){
-    var outputEl = document.createElement("DIV");
-    outputEl.className = "stuff-box red";
-    outputEl.onclick = function(e) {this.parentNode.removeChild(this)};
-    outputDiv.insertBefore(outputEl, outputDiv.childNodes[0]);
-
-    var timestamp = document.createElement("P");
-    timestamp.style.display = "inline";
-    timestamp.innerHTML = getDateTime();
-    timestamp.className = "timestamp";
-    outputEl.appendChild(timestamp);
+function addLI(text, list){
+    var lilly = document.createElement("LI");
+    lilly.innerHTML = text;
+    list.appendChild(lilly);
 }
