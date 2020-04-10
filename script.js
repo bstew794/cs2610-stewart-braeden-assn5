@@ -1,4 +1,7 @@
 document.title = "Vue.JS Weather App";
+var unlikeCount = 0;
+var neutralCount = 40;
+var likeCount = 0;
 
 var titleCard = document.createElement("DIV");
 titleCard.className = "stuff-box gray";
@@ -10,6 +13,7 @@ testTitle.innerHTML = "Vue.JS Weather App";
 titleCard.appendChild(testTitle);
 
 var locDiv = document.createElement("DIV");
+locDiv.className = "stuff-box blue";
 locDiv.id = "location";
 document.body.appendChild(locDiv);
 
@@ -23,6 +27,7 @@ locMessage.id = "location_message";
 locDiv.appendChild(locMessage);
 
 var currDiv = document.createElement("DIV");
+currDiv.className = "stuff-box yellow";
 currDiv.id = "current_conditions";
 document.body.appendChild(currDiv);
 
@@ -39,6 +44,7 @@ currList.className = "conditions_list";
 currDiv.appendChild(currList);
 
 var forecastDiv = document.createElement("DIV");
+forecastDiv.className = "stuff-box tan";
 forecastDiv.id = "forecast"
 document.body.appendChild(forecastDiv);
 
@@ -51,15 +57,20 @@ forecastTitle.id = "likelihood_message";
 forecastDiv.appendChild(forecastMessage);
 
 var forecastUnLike = document.createElement("SPAN");
+forecastUnLike.id = "unlikelihood";
+forecastUnLike.innerHTML = unlikeCount + " unlikely ";
 forecastMessage.appendChild(forecastUnLike);
 
-var forecastNue = document.createElement("SPAN");
-forecastMessage.appendChild(forecastNue);
+var forecastNeu = document.createElement("SPAN");
+forecastNeu.id = "neutrality";
+forecastNeu.innerHTML = neutralCount + " neutral ";
+forecastMessage.appendChild(forecastNeu);
 
 var forecastLike = document.createElement("SPAN");
+forecastLike.id = "likelihood";
+forecastLike.innerHTML = likeCount + " likely";
 forecastMessage.appendChild(forecastLike);
-
-const locURL = 'http://api.ipstack.com/check?access_key=d819a0b842f699a515686f8c5a9757c8&fields=main'
+const locURL = 'http://api.ipstack.com/check?access_key=d819a0b842f699a515686f8c5a9757c8&fields=main';
 
 fetch(locURL)
     .then((response) => {return response.json();})
@@ -117,7 +128,7 @@ fetch(locURL)
             })
             .catch(function(err) {
                 console.log("Something went wrong here...", err);
-            })
+            });
 
             forecastURL = "https://api.openweathermap.org/data/2.5/forecast?lat=" + lat + "&lon=" + long +
             "&units=imperial&appid=2f82263a2db94f47be29da3e930d958b";
@@ -129,11 +140,12 @@ fetch(locURL)
 
                 for(i=0; i<hourlyList.length; i++){
                     var hourly = hourlyList[i];
-                    console.log(hourly);
 
                     var hourlyDiv = document.createElement("DIV");
+                    hourlyDiv.className = "stuff-box black"
                     hourlyDiv.id = "hourly_" + i;
                     forecastDiv.appendChild(hourlyDiv);
+                    hourlyDiv.onclick = function(e) {toggleLike(this)};
 
                     var date = new Date(hourly.dt * 1000);
 
@@ -178,11 +190,11 @@ fetch(locURL)
             })
             .catch(function(err) {
                 console.log("Something went wrong here...", err);
-            })
+            });
     })
     .catch(function(err) {
         console.log("Something went wrong here...", err);
-    })
+    });
 
 function getDateTime(){
     var today = new Date();
@@ -195,4 +207,36 @@ function addLI(text, list){
     var lilly = document.createElement("LI");
     lilly.innerHTML = text;
     list.appendChild(lilly);
+}
+function toggleLike(element){
+    if(element.className == "stuff-box black"){
+        element.classList.toggle("black");
+        element.classList.toggle("green");
+
+        neutralCount--;
+        likeCount++;
+
+        forecastNeu.innerHTML = neutralCount + " neutral ";
+        forecastLike.innerHTML = likeCount + " likely";
+    }
+    else if(element.className == "stuff-box green"){
+        element.classList.toggle("green");
+        element.classList.toggle("red");
+
+        likeCount--;
+        unlikeCount++;
+
+        forecastUnLike.innerHTML = unlikeCount + " unlikely ";
+        forecastLike.innerHTML = likeCount + " likely";
+    }
+    else {
+        element.classList.toggle("red");
+        element.classList.toggle("black");
+
+        unlikeCount--;
+        neutralCount++;
+
+        forecastUnLike.innerHTML = unlikeCount + " unlikely ";
+        forecastNeu.innerHTML = neutralCount + " neutral ";
+    }
 }
