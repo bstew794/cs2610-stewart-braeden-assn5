@@ -3,15 +3,12 @@ var unlikeCount = 0;
 var neutralCount = 40;
 var likeCount = 0;
 
-var titleCard = document.createElement("DIV");
-titleCard.className = "stuff-box gray";
-titleCard.id = "title_card";
-document.body.appendChild(titleCard);
-
-var testTitle = document.createElement("H2");
-testTitle.innerHTML = "Vue.JS Weather App";
-titleCard.appendChild(testTitle);
-
+var test_title = new Vue({
+    el: '#test_title',
+    data: {
+        message: 'Vue.JS? Weather App'
+    }
+})
 var locDiv = document.createElement("DIV");
 locDiv.className = "stuff-box blue";
 locDiv.id = "location";
@@ -187,6 +184,7 @@ fetch(locURL)
                     addLI(hourly.main.humidity + "% humidity", conList);
                     addLI(hourly.weather[0].description, conList);
                 }
+                document.getElementById("loader").remove();
             })
             .catch(function(err) {
                 console.log("Something went wrong here...", err);
